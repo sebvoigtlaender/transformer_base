@@ -30,8 +30,7 @@ class SelfAttention(nn.Module):
         self.self_attention = nn.MultiheadAttention(d, n_heads, dropout=p_dropout, bias=bias, batch_first=batch_first)
         if norm:
             self.layer_norm = nn.LayerNorm(d)
-        if len_block is not None:
-            self.causal = True
+        if self.causal == True:
             self.causal_mask = pt.triu(pt.ones(len_block, len_block, dtype=pt.bool), diagonal=1)
 
     def forward(self, x: TensorType, causal_mask: Optional[TensorType] = None) -> TensorType: # maybe more dropout here
@@ -86,6 +85,6 @@ class Core(nn.Module):
                 x = core_layer(x, causal_mask)
         elif self.core_type == 'tf_decoder':
             x = self.core_layer(x, causal_mask)
-            x = self.causal_core_layer(x,causal_mask)
+            x = self.causal_core_layer(x, causal_mask)
         x = x + self.fully_connected(x)
         return x
