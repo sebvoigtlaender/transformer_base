@@ -30,7 +30,3 @@ config.module_specs = {'actions': 'continuous'}
 transformer = DecisionTransformer(config)
 
 x = {'actions': pt.rand(config.batch_size, config.len_context, config.n_actions), 'local_position': pt.randint(0, config.len_context, (config.batch_size, config.len_context))}
-
-
-
-pip3 install torch-tensorrt -f https://github.com/pytorch/TensorRT/releases

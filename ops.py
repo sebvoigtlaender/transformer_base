@@ -1,7 +1,3 @@
-# decision transformer
-
-# k time steps into a standard gpt-1 architecture, 3 embedding layers, one for each modality, additional timestep embeddings added to each tokens
-
 '''
 The EmbedderCore is a module that tokenizes different types of data into a numerical embedding flexibly, as defined by the EmbedderCore configuration.
 The EmbedderBank produces an dictionary of vectors that can be flexibly queried by the downstream models, as defined by the transformer configuration or by the model configuration
