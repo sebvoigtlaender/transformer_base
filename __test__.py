@@ -5,7 +5,7 @@ import torch as pt
 import torch.nn as nn
 
 from arguments import get_args
-from model import DecisionTransformer
+from decision_transformer import DecisionTransformer
 from utils import activation_fn, get_len_block, TensorDict, TensorType
 
 config = get_args()
