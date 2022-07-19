@@ -53,3 +53,15 @@ def loss_fn(loss_fn: str) -> Callable[[TensorType], TensorType]:
         return F.kl_div
     else:
         raise NotImplementedError(loss_fn)
+
+def join_tensor(*x: TensorType, dim: Optional[int] = -1, mode: Optional[str] = 'cat'):
+    '''
+    Combine list of tensors along dimension dim, default mode = concatenate
+    '''
+    if mode == 'cat':
+        tokens = pt.cat([*x], dim)
+    elif mode == 'stack':
+        tokens = pt.stack([*x], dim)
+    else:
+        raise NotImplementedError()
+    return tokens

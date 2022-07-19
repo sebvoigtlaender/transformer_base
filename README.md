@@ -1,8 +1,7 @@
 # Configurable Transformer library
 
-PyTorch code for basic functionalities. The code is intended to be used as the basis for further experiments.
-
-For unit testing we will reproduce parts of the [Decision Transformer](https://arxiv.org/abs/2106.01345) and [Vision Transformer](https://arxiv.org/abs/2010.11929) papers.
+PyTorch code for task-agnostic transformers. The models are built to be easily configurable to facilitate switching between different input modalities.
+For unittesting we will reproduce parts of the [Decision Transformer](https://arxiv.org/abs/2106.01345) and [Vision Transformer](https://arxiv.org/abs/2010.11929) papers, using the exact same or only very slightly modified code, by merely changing the configurations. 
 
 ## Package Description
 
@@ -34,6 +33,6 @@ See [arguments.py](https://github.com/sebvoigtlaender/state_rl_basics/blob/main/
 
 ### Tests
 
-Unit tests will follow.
+Unittests will follow.
 
 ### Lessons learned

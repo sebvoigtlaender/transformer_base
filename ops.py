@@ -2,7 +2,7 @@
 The EmbedderCore is a module that tokenizes different types of data into a numerical embedding flexibly, as defined by the EmbedderCore configuration.
 The EmbedderBank produces an dictionary of vectors that can be flexibly queried by the downstream models, as defined by the transformer configuration or by the model configuration
 of the model that contains the transformer core. This flexibility will allow to tokenize various data and feed them selectively to specialized downstream models.
-The hull which wraps the transformer core is responsible for all computations outside of the transformer, i.e. preprocessing such as tokenize, join, etc.,
+The wrapper which wraps the transformer core is responsible for all computations outside of the transformer, i.e. preprocessing such as tokenize, join, etc.,
 as well as post processing. Another class will be responsible for the control flow that is independent of the core computations, that is, it is responsible for
 training, evaluation, logging, saving state dictionaries, parameter optimization, etc.
 '''
@@ -48,6 +48,8 @@ class EmbedderBank(nn.Module):
         self.module_specs = module_specs
         if not 'local_position' in module_specs.keys():
             module_specs['local_position'] = 'local_position'
+        self.default_local_position = pt.arange(0, config.len_context, dtype = pt.long)
+        logging.info(f'default local position set to range(0, len_context) = range(0, {config.len_context})')
 
         module_dict = OrderedDict()
         for key, spec in module_specs.items():
@@ -85,6 +87,9 @@ class EmbedderBank(nn.Module):
         '''
         token_dict = OrderedDict()
         position_dict = OrderedDict()
+        if not 'local_position' in x.keys():
+            x.update({'local_position': self.default_local_position})
+
         for key, value in x.items():
             assert key in self.embedder_bank.keys(), f'the input keys must be contained in {self.embedder_bank.keys()}'
             if value is not None:
@@ -108,6 +113,11 @@ class EmbedderBank(nn.Module):
         n_inputs_not_null = len(token_dict)
         token_embeddings = []
 
+        if not hasattr(self.config, 'join_mode'):
+            self.config.join_mode = 'interleave'
+            if n_inputs_not_null > 1:
+                logging.info(f'self.config.join_mode not given, set to {self.config.join_mode}')
+
         for key in token_dict.keys():
 
             assert token_dict[key].shape[-1] == self.config.d
@@ -115,13 +125,9 @@ class EmbedderBank(nn.Module):
             if token_dict[key].shape == (self.config.batch_size*self.config.len_context, self.config.d): 
                 token_dict[key] = token_dict[key].view(self.config.batch_size, self.config.len_context, self.config.d)
 
-            for position_key in position_dict.keys():
-                token_embeddings.append(token_dict[key] + position_dict[position_key])
-                
-        if not hasattr(self.config, 'join_mode'):
-            self.config.join_mode = 'interleave'
-            logging.info(f'self.config.join_mode not given, set to {self.config.join_mode}')
-
+        for position_key in position_dict.keys():
+            token_embeddings.append(token_dict[key] + position_dict[position_key])
+            
         if self.config.join_mode == 'interleave':
             token_embeddings = pt.reshape(pt.stack(token_embeddings, -1).flatten(),
                                           (self.config.batch_size, self.config.len_context*n_inputs_not_null, self.config.d))
@@ -129,6 +135,9 @@ class EmbedderBank(nn.Module):
         elif self.config.join_mode == 'block':
             token_embeddings = pt.reshape(pt.stack(token_embeddings, 1).flatten(),
                               (self.config.batch_size, self.config.len_context*n_inputs_not_null, self.config.d))
+
+        elif self.config.join_mode == 'cat':
+            pass
 
         return token_embeddings
 
