@@ -3,7 +3,3 @@ _notes.txt
 __pycache__
 __test__.ipynb
 __test__.py
-data_pipeline.py
-main.py
-trainer.py
-unittest.py
